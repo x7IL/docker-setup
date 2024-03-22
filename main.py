@@ -1,6 +1,5 @@
-# setup_project.py
 import os
-import builder  # Importe le fichier builder.py comme un module.
+import builder
 
 def get_project_name():
     print("=== Project Name Input ===")
@@ -44,13 +43,14 @@ def create_project_structure(project_name, image_names):
     os.makedirs(scripts_path, exist_ok=True)
 
     network_name = "default_network"
+    # Generating the build.sh script
     bash_build = builder.generate_bash_script(project_name, network_name, image_names)
     with open(os.path.join(scripts_path, 'build.sh'), 'w') as f_build:
         f_build.write(bash_build)
     os.chmod(os.path.join(scripts_path, 'build.sh'), 0o755)
 
-    # Génération du script run.sh
-    # La demande de mappages de ports se fera ici
+    # Generating the run.sh script
+    # Port mappings input will be requested here
     bash_run = builder.generate_run_script(project_name, network_name, image_names, scripts_path)
     with open(os.path.join(scripts_path, 'run.sh'), 'w') as f_build:
         f_build.write(bash_run)

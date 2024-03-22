@@ -1,4 +1,3 @@
-# buil.sh
 import os
 def generate_bash_script(project_name, network_name, image_names):
     bash_script = f"""#!/bin/bash
