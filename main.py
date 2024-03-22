@@ -1,43 +1,58 @@
 import os
 
+def get_project_name():
+    print("=== Project Name Input ===")
+    # Ask the user for the project name; this will be used to create a directory under 'output'.
+    project_name = input("Please enter the project name: ").strip().replace(' ', '_').lower()
+    return project_name
+
 def get_image_names():
     image_names = []
-    print("Enter image names (enter a blank line to finish):")
+    print("\n==== Docker Image Name Input ====")
+    print("Please enter the names of the Docker images you'd like to create.")
+    print("Enter one name per line. When you are finished, enter a blank line.")
+    index = 1
     while True:
-        name = input().strip().lower()
+        name = input(f"Image name #{index}: ").strip().lower()
         if not name:
             break
         image_names.append(name)
+        index += 1
     return image_names
 
-def create_directories_and_files(image_names):
-    # Création du dossier docker et de ses sous-dossiers et fichiers
-    if not os.path.exists('docker'):
-        os.mkdir('docker')
+def create_project_structure(project_name, image_names):
+    # Create the output directory if it doesn't exist
+    output_path = os.path.join('output_folders', project_name)
+    docker_path = os.path.join(output_path, 'docker')
+    config_path = os.path.join(output_path, 'config')
+    scripts_path = os.path.join(output_path, 'scripts')
+
+    os.makedirs(docker_path, exist_ok=True)
     for name in image_names:
-        os.makedirs(f'docker/{name}', exist_ok=True)
-        with open(f'docker/{name}/Dockerfile', 'w') as f:
+        os.makedirs(os.path.join(docker_path, name), exist_ok=True)
+        with open(os.path.join(docker_path, name, 'Dockerfile'), 'w') as f:
             pass
 
-    # Création du dossier config et de ses sous-dossiers et fichiers
-    if not os.path.exists('config'):
-        os.mkdir('config')
+    os.makedirs(config_path, exist_ok=True)
     for name in image_names:
-        os.makedirs(f'config/{name}', exist_ok=True)
-        with open(f'config/{name}/.env', 'w') as f, open(f'config/{name}/.env.example', 'w') as f_example:
+        image_config_path = os.path.join(config_path, name)
+        os.makedirs(image_config_path, exist_ok=True)
+        with open(os.path.join(image_config_path, '.env'), 'w') as f, \
+             open(os.path.join(image_config_path, '.env.example'), 'w') as f_example:
             pass
 
-    # Création du dossier scripts et de ses fichiers
-    if not os.path.exists('scripts'):
-        os.mkdir('scripts')
-    with open('scripts/build.sh', 'w') as f_build, open('scripts/run.sh', 'w') as f_run:
+    os.makedirs(scripts_path, exist_ok=True)
+    with open(os.path.join(scripts_path, 'build.sh'), 'w') as f_build, \
+         open(os.path.join(scripts_path, 'run.sh'), 'w') as f_run:
         f_build.write("#!/bin/bash\n# Add your build commands here\n")
         f_run.write("#!/bin/bash\n# Add your run commands here\n")
 
 def main():
+    print("=== Docker Project Setup Script ===")
+    project_name = get_project_name()
     image_names = get_image_names()
-    create_directories_and_files(image_names)
-    print("Directories and files have been successfully created.")
+    create_project_structure(project_name, image_names)
+    print(f"\nSetup complete! Your Docker project '{project_name}' has been successfully created inside the 'output' directory.")
 
 if __name__ == "__main__":
     main()
