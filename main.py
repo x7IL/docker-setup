@@ -1,10 +1,10 @@
+# setup_project.py
 import os
+import builder  # Importe le fichier builder.py comme un module.
 
 def get_project_name():
     print("=== Project Name Input ===")
-    # Ask the user for the project name; this will be used to create a directory under 'output'.
-    project_name = input("Please enter the project name: ").strip().replace(' ', '_').lower()
-    return project_name
+    return input("Please enter the project name: ").strip().replace(' ', '_').lower()
 
 def get_image_names():
     image_names = []
@@ -20,8 +20,8 @@ def get_image_names():
         index += 1
     return image_names
 
+# setup_project.py
 def create_project_structure(project_name, image_names):
-    # Create the output directory if it doesn't exist
     output_path = os.path.join('output_folders', project_name)
     docker_path = os.path.join(output_path, 'docker')
     config_path = os.path.join(output_path, 'config')
@@ -42,17 +42,27 @@ def create_project_structure(project_name, image_names):
             pass
 
     os.makedirs(scripts_path, exist_ok=True)
-    with open(os.path.join(scripts_path, 'build.sh'), 'w') as f_build, \
-         open(os.path.join(scripts_path, 'run.sh'), 'w') as f_run:
-        f_build.write("#!/bin/bash\n# Add your build commands here\n")
-        f_run.write("#!/bin/bash\n# Add your run commands here\n")
+
+    network_name = "default_network"
+    bash_build = builder.generate_bash_script(project_name, network_name, image_names)
+    with open(os.path.join(scripts_path, 'build.sh'), 'w') as f_build:
+        f_build.write(bash_build)
+    os.chmod(os.path.join(scripts_path, 'build.sh'), 0o755)
+
+    # Génération du script run.sh
+    # La demande de mappages de ports se fera ici
+    bash_run = builder.generate_run_script(project_name, network_name, image_names, scripts_path)
+    with open(os.path.join(scripts_path, 'run.sh'), 'w') as f_build:
+        f_build.write(bash_run)
+    
+    os.chmod(os.path.join(scripts_path, 'run.sh'), 0o755)
 
 def main():
     print("=== Docker Project Setup Script ===")
     project_name = get_project_name()
     image_names = get_image_names()
     create_project_structure(project_name, image_names)
-    print(f"\nSetup complete! Your Docker project '{project_name}' has been successfully created inside the 'output' directory.")
+    print(f"Setup complete! Your Docker project '{project_name}' has been successfully created inside the 'output_folders' directory.")
 
 if __name__ == "__main__":
     main()
