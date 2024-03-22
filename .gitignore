@@ -1,1 +1,2 @@
 output_folders/*
+/__pycache__/
